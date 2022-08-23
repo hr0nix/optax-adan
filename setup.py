@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='optax-adan',
-    version='0.1.1',
+    version='0.1.3',
     description='An implementation of adan optimization algorithm for optax.',
     url='https://github.com/hr0nix/optax-adan',
     author='Boris Yangel',
