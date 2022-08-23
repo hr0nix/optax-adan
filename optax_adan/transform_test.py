@@ -14,13 +14,19 @@ def sphere(x):
 
 
 def _test_optimization(func, optimizer, num_iters, initial_params, expected_optimum):
-    value_grad_func = jax.jit(jax.value_and_grad(func))
+    value_grad_func = jax.value_and_grad(func)
     params = initial_params
-    optimizer_state = optimizer.init(jnp.zeros((2,)))
-    for i in range(num_iters):
+    optimizer_state = optimizer.init(params)
+
+    @jax.jit
+    def step(params, optimizer_state):
         value, grad = value_grad_func(params)
         updates, optimizer_state = optimizer.update(grad, optimizer_state, params)
         params = optax.apply_updates(params, updates)
+        return value, params, optimizer_state
+
+    for i in range(num_iters):
+        value, params, optimizer_state = step(params, optimizer_state)
         if i % 100 == 0:
             print(f'iter {i}: v={value:.4f} x={params}')
 
@@ -31,7 +37,7 @@ def test_adan_sphere():
     return _test_optimization(
         func=sphere,
         optimizer=adan(learning_rate=0.01),
-        num_iters=500,
+        num_iters=2000,
         initial_params=jnp.array([5.0, -7.5]),
         expected_optimum=jnp.array([0.0, 0.0]),
     )
@@ -41,7 +47,7 @@ def test_adan_booth():
     return _test_optimization(
         func=booth,
         optimizer=adan(learning_rate=0.01),
-        num_iters=500,
+        num_iters=2000,
         initial_params=jnp.array([5.0, -7.5]),
         expected_optimum=jnp.array([1.0, 3.0]),
     )

@@ -5,7 +5,7 @@ import jax.numpy as jnp
 from optax._src.base import GradientTransformation, Updates
 from optax._src.combine import chain
 from optax._src.transform import update_moment, bias_correction, scale_by_schedule
-from optax._src.alias import ScalarOrSchedule
+from optax._src.alias import ScalarOrSchedule, _scale_by_learning_rate
 from optax._src import numerics
 
 from typing import NamedTuple
@@ -80,25 +80,14 @@ def scale_by_adan(
     return GradientTransformation(init_fn, update_fn)
 
 
-def adan_scale_by_lr_and_weight_decay(
-    learning_rate: ScalarOrSchedule,
-    weight_decay: float = 0.0,
-) -> GradientTransformation:
-    def scale(count):
-        lr = learning_rate(count) if callable(learning_rate) else learning_rate
-        return -1.0 / (1.0 + weight_decay * lr)
-    return scale_by_schedule(scale)
-
-
 def adan(
     learning_rate: ScalarOrSchedule,
     b1: float = 0.02,
     b2: float = 0.08,
     b3: float = 0.01,
     eps: float = 1e-8,
-    weight_decay: float = 0.0,
 ) -> GradientTransformation:
     return chain(
         scale_by_adan(b1=b1, b2=b2, b3=b3, eps=eps),
-        adan_scale_by_lr_and_weight_decay(learning_rate, weight_decay),
+        _scale_by_learning_rate(learning_rate),
     )
