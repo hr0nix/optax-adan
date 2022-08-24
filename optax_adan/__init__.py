@@ -1,2 +1,3 @@
-from .version import __version__, __author__
 from .transform import adan
+
+__version__ = '0.1.4'
