@@ -1,4 +1,2 @@
-__version__ = '0.1.3'
-__author__ = 'Boris Yangel'
-
+from .version import __version__, __author__
 from .transform import adan
