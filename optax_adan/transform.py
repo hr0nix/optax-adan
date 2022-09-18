@@ -73,7 +73,7 @@ def scale_by_adan(
         n_hat = bias_correction(n, decay_n, count_inc)
 
         new_updates = jax.tree_util.tree_map(
-            lambda mm, vv, nn: (mm + decay_v * vv) / jnp.sqrt(nn + eps), m_hat, v_hat, n_hat)
+            lambda mm, vv, nn: (mm + decay_v * vv) / (jnp.sqrt(nn) + eps), m_hat, v_hat, n_hat)
 
         return new_updates, ScaleByAdanState(count=count_inc, m=m, v=v, n=n, prev_grad=updates)
 
